@@ -105,6 +105,8 @@ const Page: React.FC<PageProps> = ({ params }) => {
 
   // Add state for incoming text responses
   const [voiceMessages, setVoiceMessages] = useState<string[]>([]);
+  // Add state for current display text (question_text or content)
+  const [currentDisplayText, setCurrentDisplayText] = useState<string | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -224,9 +226,11 @@ const Page: React.FC<PageProps> = ({ params }) => {
           const data = JSON.parse(event.data);
           console.log('Received message:', data);
 
-          if (data.content) {
-            // Add the message to the voiceMessages state
-            setVoiceMessages(prev => [...prev, data.content]);
+          // Show only question_text if present, otherwise content
+          if (data.question_text) {
+            setCurrentDisplayText(data.question_text);
+          } else if (data.content) {
+            setCurrentDisplayText(data.content);
           }
 
           // Update progress and time based on message type
@@ -647,21 +651,20 @@ const Page: React.FC<PageProps> = ({ params }) => {
                       </div>
 
                  {/* Introductory Text before recording */}
-                 {!isRecording && voiceMessages.length === 0 && (
+                 {!isRecording && !startPoll && (
                    <div className="flex flex-col items-center justify-center text-center text-white text-lg px-4 py-8">
                      <p>Thank you for taking time today.</p>
                      <p>I would like take 5 mins of your time to get your thoughts about Pollvault.</p>
-                              </div>
+                   </div>
                  )}
 
                  {/* Content area, might contain messages or instructions */}
-                 {/* Ensure ref is correctly applied with type assertion */}
                  <div ref={scrollableContainerRef as any} className="overflow-y-scroll no-scrollbar pt-4">
-                    {/* Display only the most recent incoming text response from the API */}
-                    {voiceMessages.length > 0 && (
+                    {/* Display only the current question_text or content from the API */}
+                    {currentDisplayText && (
                       <div className="mb-2 text-white">
-                        {voiceMessages[voiceMessages.length - 1]}
-                              </div>
+                        {currentDisplayText}
+                      </div>
                     )}
                             </div>
 
