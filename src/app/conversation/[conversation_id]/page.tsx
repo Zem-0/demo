@@ -662,7 +662,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
                  <div ref={scrollableContainerRef as any} className="overflow-y-scroll no-scrollbar pt-4">
                     {/* Display only the current question_text or content from the API */}
                     {currentDisplayText && (
-                      <div className="mb-2 text-white">
+                      <div className="mb-2 text-white text-center flex justify-center">
                         {currentDisplayText}
                       </div>
                     )}
